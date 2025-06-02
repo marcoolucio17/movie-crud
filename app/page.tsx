@@ -1,103 +1,125 @@
-import Image from "next/image";
+"use client";
+
+import { useState } from "react";
+import SearchBar from "./components/SearchBar";
+import Fab from "@mui/material/Fab";
+import AddIcon from "@mui/icons-material/Add";
+import FilterAltIcon from "@mui/icons-material/FilterAlt";
+import Select, { SelectChangeEvent } from "@mui/material/Select";
+import FilterDialog from "./components/FilterDialog";
+import AddMovieDialog from "./components/AddMovieDialog";
+import { MovieCard } from "./components/MovieCard";
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [openFilterDialog, setOpenFilterDialog] = useState(false);
+  const [openAddMovieDialog, setOpenAddMovieDialog] = useState(false);
+  const [value, setValue] = useState<number | null>(2);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  const [genero, setGenero] = useState("1");
+
+  const handleGenero = (event: SelectChangeEvent) => {
+    setGenero(event.target.value as string);
+  };
+
+  const generos = [
+    { id: 1, name: "Acción" },
+    { id: 2, name: "Romance" },
+    { id: 3, name: "Drama" },
+    { id: 4, name: "Suspenso" },
+  ];
+
+  const peliculas = [
+  {
+    id: 1,
+    title: "El Padrino",
+    rating: 5,
+    genre: "Crimen",
+    review: "Una obra maestra del cine, actuaciones inolvidables y dirección impecable.",
+  },
+  {
+    id: 2,
+    title: "Interestelar",
+    rating: 4,
+    genre: "Ciencia ficción",
+    review: "Visualmente impresionante, con una historia que desafía la lógica del tiempo.",
+  },
+  {
+    id: 3,
+    title: "El Laberinto del Fauno",
+    rating: 5,
+    genre: "Fantasía",
+    review: "Una mezcla perfecta de fantasía y realidad con una atmósfera oscura e intensa.",
+  },
+  {
+    id: 4,
+    title: "Titanic",
+    rating: 4,
+    genre: "Romance",
+    review: "Un drama romántico épico con una producción espectacular.",
+  },
+  {
+    id: 5,
+    title: "Shrek 2",
+    rating: 5,
+    genre: "Animación",
+    review: "Divertida, encantadora y llena de referencias geniales para todas las edades.",
+  },
+];
+
+
+  return (
+    <div className="p-24 flex w-full">
+      <div className="w-full flex flex-col h-full gap-6">
+        <p className="text-2xl font-sans font-light">Bienvenido a CineTec</p>
+
+        <div className="w-full flex flex-row gap-3 justify-between">
+          <SearchBar />
+
+          <div className="flex flex-row gap-6">
+            <Fab variant="extended" onClick={() => setOpenFilterDialog(true)}>
+              <FilterAltIcon sx={{ mr: 1 }} />
+              Filter by
+            </Fab>
+
+            <Fab
+              color="primary"
+              aria-label="add"
+              onClick={() => setOpenAddMovieDialog(true)}
+            >
+              <AddIcon />
+            </Fab>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+
+        <FilterDialog
+          openFilterDialog={openFilterDialog}
+          setOpenFilterDialog={setOpenFilterDialog}
+          genero={genero}
+          handleGenero={handleGenero}
+          generos={generos}
+        />
+
+        <AddMovieDialog
+          open={openAddMovieDialog}
+          setOpen={setOpenAddMovieDialog}
+          value={value}
+          setValue={setValue}
+          genero={genero}
+          handleGenero={handleGenero}
+          generos={generos}
+        />
+
+        {/* ahora mostramos las pelis */}
+        <div id="peli-container" className="grid grid-cols-3 gap-5">
+          {peliculas.map((pelicula) => (
+            <MovieCard
+              key={pelicula.id}
+              pelicula={pelicula}
+              // onUpdate={handleUpdate}
+            />
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
