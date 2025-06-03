@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabaseClient';
+import { NextRequest } from 'next/server';
 
 /**
  * Método PUT para actualizar cierta película en la base de datos
@@ -6,8 +7,8 @@ import { supabase } from '@/lib/supabaseClient';
  * @param param1 
  * @returns JSON del resultado
  */
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
-  const id = parseInt(params.id);
+export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const body = await req.json();
 
   const { data, error } = await supabase
@@ -33,8 +34,8 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
  * @param id: ID de la película a eliminar
  * @returns JSON del resultado
  */
-export async function DELETE(_: Request, { params }: { params: { id: string } }) {
-  const id = parseInt(params.id);
+export async function DELETE(_: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
 
   const { error } = await supabase
     .from('movie')

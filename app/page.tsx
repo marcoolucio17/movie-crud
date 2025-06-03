@@ -142,7 +142,7 @@ export default function Home() {
               <p className="text-lg font-medium">No se encontraron películas</p>
             </div>
           ) : (
-            <div id="peli-container" className="grid grid-cols-3 gap-5 overflow-y-scroll h-160">
+            <div id="peli-container" className="grid grid-cols-3 gap-5 overflow-y-scroll h-160 p-3">
               {filteredPeliculas.map((pelicula, idx) => (
                 <MovieCard
                   key={idx}

@@ -39,7 +39,13 @@ interface MovieCardProps {
   setErrorMessage: (message: string) => void;
 }
 
-export function MovieCard({ pelicula, fetchData, generos, setSuccessMessage, setErrorMessage }: MovieCardProps) {
+export function MovieCard({
+  pelicula,
+  fetchData,
+  generos,
+  setSuccessMessage,
+  setErrorMessage,
+}: MovieCardProps) {
   const [open, setOpen] = useState(false);
   const [edited, setEdited] = useState<Pelicula>(pelicula);
 
@@ -59,12 +65,19 @@ export function MovieCard({ pelicula, fetchData, generos, setSuccessMessage, set
   // maneja PUT para actualizar una peli
   const handleSave = async () => {
     try {
-      await axios.put("/api/movies/" + pelicula.id, edited); 
+      let editedToSend = { ...edited };
+
+      if (typeof edited.genre === "string") {
+        editedToSend.genre = findIdByName(edited.genre);
+      }
+
+      console.log(editedToSend);
+      await axios.put("/api/movies/" + pelicula.id, editedToSend);
       setSuccessMessage("Película actualizada con éxito.");
-      await fetchData(); 
-      setOpen(false); 
+      await fetchData();
+      setOpen(false);
     } catch (error) {
-      setErrorMessage("Error actualizando película:" + error);
+      setErrorMessage("Error actualizando película: " + error);
     }
   };
 
