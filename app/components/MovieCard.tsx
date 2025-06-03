@@ -13,27 +13,36 @@ import {
   Button,
   Rating,
   Box,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import { PencilIcon } from "@heroicons/react/24/solid";
 import { TrashIcon } from "@heroicons/react/24/solid";
-
+import axios from "axios";
 export interface Pelicula {
   id: number;
-  title: string;
+  name: string;
   rating: number;
-  genre: string;
+  genre: any;
   review: string;
 }
 
 interface MovieCardProps {
   pelicula: Pelicula;
-  onUpdate?: (updated: Pelicula) => void; // ocupo un PUT /:movieid y mando toda la row
+  fetchData: () => void;
+  generos: { id: number; name: string }[];
 }
 
-export function MovieCard({ pelicula, onUpdate }: MovieCardProps) {
+export function MovieCard({ pelicula, fetchData, generos }: MovieCardProps) {
   const [open, setOpen] = useState(false);
   const [edited, setEdited] = useState<Pelicula>(pelicula);
+
+  // oopsie
+  const findIdByName = (name: string): number | undefined => {
+    const genero = generos.find((g) => g.name === name);
+    return genero?.id;
+  };
 
   const handleOpen = () => {
     setEdited(pelicula);
@@ -42,18 +51,38 @@ export function MovieCard({ pelicula, onUpdate }: MovieCardProps) {
 
   const handleClose = () => setOpen(false);
 
-  const handleSave = () => {
-    onUpdate?.(edited);
-    setOpen(false);
+  const handleSave = async () => {
+    try {
+      await axios.put("/api/movies/" + pelicula.id, edited); 
+      await fetchData(); 
+      setOpen(false); 
+    } catch (error) {
+      console.error("Error updating movie:", error);
+    }
+  };
+  const handleDelete = async () => {
+    try {
+      await axios.delete("/api/movies/" + pelicula.id, {
+        data: edited, 
+      });
+      await fetchData();
+    } catch (error) {
+      console.error("Error deleting movie:", error);
+    }
   };
 
   return (
     <>
       <Paper elevation={5} className="p-8">
-        <Box display="flex" justifyContent="space-between" alignItems="start" sx = {{width: "100%"}}>
+        <Box
+          display="flex"
+          justifyContent="space-between"
+          alignItems="start"
+          sx={{ width: "100%" }}
+        >
           <div className="flex flex-col gap-5">
             <div>
-              <Typography variant="h6">{pelicula.title}</Typography>
+              <Typography variant="h6">{pelicula.name}</Typography>
               <p>{pelicula.genre}</p>
             </div>
             <Rating value={pelicula.rating} readOnly />
@@ -64,7 +93,7 @@ export function MovieCard({ pelicula, onUpdate }: MovieCardProps) {
           <IconButton onClick={handleOpen}>
             <PencilIcon className="w-5 h-5 text-gray-500" />
           </IconButton>
-          <IconButton onClick={() => console.log("deleted movie")}>
+          <IconButton onClick={handleDelete}>
             <TrashIcon className="w-5 h-5 text-gray-500" />
           </IconButton>
         </Box>
@@ -77,16 +106,30 @@ export function MovieCard({ pelicula, onUpdate }: MovieCardProps) {
             label="Título"
             fullWidth
             margin="dense"
-            value={edited.title}
-            onChange={(e) => setEdited({ ...edited, title: e.target.value })}
+            value={edited.name}
+            onChange={(e) => setEdited({ ...edited, name: e.target.value })}
           />
-          <TextField
-            label="Género"
+
+          <Select
+            // hacemos esto porque el genre puede ser texto y se ocupa buscar
+            value={
+              typeof edited.genre === "number"
+                ? edited.genre
+                : findIdByName(edited.genre) ?? ""
+            }
+            onChange={(e) =>
+              setEdited({ ...edited, genre: Number(e.target.value) })
+            }
             fullWidth
-            margin="dense"
-            value={edited.genre}
-            onChange={(e) => setEdited({ ...edited, genre: e.target.value })}
-          />
+            required
+          >
+            {generos.map(({ id, name }) => (
+              <MenuItem key={id} value={id}>
+                {name}
+              </MenuItem>
+            ))}
+          </Select>
+
           <Rating
             value={edited.rating}
             onChange={(_, newRating) =>

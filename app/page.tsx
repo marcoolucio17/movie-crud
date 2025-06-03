@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import SearchBar from "./components/SearchBar";
 import Fab from "@mui/material/Fab";
 import AddIcon from "@mui/icons-material/Add";
@@ -8,64 +8,76 @@ import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 import FilterDialog from "./components/FilterDialog";
 import AddMovieDialog from "./components/AddMovieDialog";
-import { MovieCard } from "./components/MovieCard";
+import { MovieCard, Pelicula } from "./components/MovieCard";
+import axios from "axios";
+import { CircularProgress } from "@mui/material";
 
 export default function Home() {
   const [openFilterDialog, setOpenFilterDialog] = useState(false);
   const [openAddMovieDialog, setOpenAddMovieDialog] = useState(false);
   const [value, setValue] = useState<number | null>(2);
+  const [genero, setGenero] = useState("all");
 
-  const [genero, setGenero] = useState("1");
+  const [peliculas, setPeliculas] = useState([]);
+  const [generos, setGeneros] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const handleGenero = (event: SelectChangeEvent) => {
     setGenero(event.target.value as string);
+    console.log(genero);
   };
 
-  const generos = [
-    { id: 1, name: "Acción" },
-    { id: 2, name: "Romance" },
-    { id: 3, name: "Drama" },
-    { id: 4, name: "Suspenso" },
-  ];
+  const fetchData = async () => {
+    setLoading(true);
+    await fetchPeliculas();
+    await fetchGenres();
+  };
 
-  const peliculas = [
-  {
-    id: 1,
-    title: "El Padrino",
-    rating: 5,
-    genre: "Crimen",
-    review: "Una obra maestra del cine, actuaciones inolvidables y dirección impecable.",
-  },
-  {
-    id: 2,
-    title: "Interestelar",
-    rating: 4,
-    genre: "Ciencia ficción",
-    review: "Visualmente impresionante, con una historia que desafía la lógica del tiempo.",
-  },
-  {
-    id: 3,
-    title: "El Laberinto del Fauno",
-    rating: 5,
-    genre: "Fantasía",
-    review: "Una mezcla perfecta de fantasía y realidad con una atmósfera oscura e intensa.",
-  },
-  {
-    id: 4,
-    title: "Titanic",
-    rating: 4,
-    genre: "Romance",
-    review: "Un drama romántico épico con una producción espectacular.",
-  },
-  {
-    id: 5,
-    title: "Shrek 2",
-    rating: 5,
-    genre: "Animación",
-    review: "Divertida, encantadora y llena de referencias geniales para todas las edades.",
-  },
-];
+  const findIdByName = (name: string): number | undefined => {
+    const genero: any = generos.find((g: any) => g.name === name);
+    return genero?.id;
+  };
 
+  const fetchPeliculas = async () => {
+    try {
+      const response = await axios.get("/api/movies");
+      setPeliculas(response.data);
+    } catch (error) {
+      console.error("Error fetching movies:", error);
+    }
+  };
+
+  const fetchGenres = async () => {
+    try {
+      const response = await axios.get("/api/genres");
+      setGeneros(response.data);
+    } catch (error) {
+      console.error("Error fetching movies:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // una vez al montar
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const [search, setSearch] = useState("");
+
+  // aquí filtramo las películas en base a nombre y género
+  const filteredPeliculas = peliculas.filter((peli: Pelicula) => {
+    const matchesSearch = peli.name
+      .toLowerCase()
+      .includes(search.toLowerCase());
+
+    const peliGenreId =
+      typeof peli.genre === "number" ? peli.genre : findIdByName(peli.genre);
+
+    const matchesGenre = genero === "all" || String(peliGenreId) == genero; // deje 2 == por simplicidad
+
+    return matchesSearch && matchesGenre;
+  });
 
   return (
     <div className="p-24 flex w-full">
@@ -73,7 +85,7 @@ export default function Home() {
         <p className="text-2xl font-sans font-light">Bienvenido a CineTec</p>
 
         <div className="w-full flex flex-row gap-3 justify-between">
-          <SearchBar />
+          <SearchBar search={search} setSearch={setSearch} />
 
           <div className="flex flex-row gap-6">
             <Fab variant="extended" onClick={() => setOpenFilterDialog(true)}>
@@ -107,18 +119,28 @@ export default function Home() {
           genero={genero}
           handleGenero={handleGenero}
           generos={generos}
+          fetchData={fetchData}
         />
 
         {/* ahora mostramos las pelis */}
-        <div id="peli-container" className="grid grid-cols-3 gap-5">
-          {peliculas.map((pelicula) => (
-            <MovieCard
-              key={pelicula.id}
-              pelicula={pelicula}
-              // onUpdate={handleUpdate}
-            />
-          ))}
-        </div>
+        <>
+          {loading ? (
+            <div className="flex justify-center items-center min-h-[200px]">
+              <CircularProgress />
+            </div>
+          ) : (
+            <div id="peli-container" className="grid grid-cols-3 gap-5">
+              {filteredPeliculas.map((pelicula, idx) => (
+                <MovieCard
+                  key={idx}
+                  pelicula={pelicula}
+                  fetchData={fetchData}
+                  generos={generos}
+                />
+              ))}
+            </div>
+          )}
+        </>
       </div>
     </div>
   );
