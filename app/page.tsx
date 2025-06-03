@@ -10,7 +10,7 @@ import FilterDialog from "./components/FilterDialog";
 import AddMovieDialog from "./components/AddMovieDialog";
 import { MovieCard, Pelicula } from "./components/MovieCard";
 import axios from "axios";
-import { CircularProgress } from "@mui/material";
+import { CircularProgress, Alert, Snackbar } from "@mui/material";
 
 export default function Home() {
   const [openFilterDialog, setOpenFilterDialog] = useState(false);
@@ -21,16 +21,18 @@ export default function Home() {
   const [peliculas, setPeliculas] = useState([]);
   const [generos, setGeneros] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null); // ✅ new
 
   const handleGenero = (event: SelectChangeEvent) => {
     setGenero(event.target.value as string);
-    console.log(genero);
   };
 
   const fetchData = async () => {
     setLoading(true);
     await fetchPeliculas();
     await fetchGenres();
+    // setSuccessMessage("Fetch realizado con éxito!!")
   };
 
   const findIdByName = (name: string): number | undefined => {
@@ -43,7 +45,7 @@ export default function Home() {
       const response = await axios.get("/api/movies");
       setPeliculas(response.data);
     } catch (error) {
-      console.error("Error fetching movies:", error);
+      setError("No se pudieron cargar las películas.");
     }
   };
 
@@ -52,20 +54,18 @@ export default function Home() {
       const response = await axios.get("/api/genres");
       setGeneros(response.data);
     } catch (error) {
-      console.error("Error fetching movies:", error);
+      setError("No se pudieron cargar los géneros.");
     } finally {
       setLoading(false);
     }
   };
 
-  // una vez al montar
   useEffect(() => {
     fetchData();
   }, []);
 
   const [search, setSearch] = useState("");
 
-  // aquí filtramo las películas en base a nombre y género
   const filteredPeliculas = peliculas.filter((peli: Pelicula) => {
     const matchesSearch = peli.name
       .toLowerCase()
@@ -74,7 +74,7 @@ export default function Home() {
     const peliGenreId =
       typeof peli.genre === "number" ? peli.genre : findIdByName(peli.genre);
 
-    const matchesGenre = genero === "all" || String(peliGenreId) == genero; // deje 2 == por simplicidad
+    const matchesGenre = genero === "all" || String(peliGenreId) == genero;
 
     return matchesSearch && matchesGenre;
   });
@@ -120,9 +120,10 @@ export default function Home() {
           handleGenero={handleGenero}
           generos={generos}
           fetchData={fetchData}
+          setSuccessMessage={setSuccessMessage}
+          setErrorMessage={setError}
         />
 
-        {/* ahora mostramos las pelis */}
         <>
           {loading ? (
             <div className="flex justify-center items-center min-h-[200px]">
@@ -136,12 +137,36 @@ export default function Home() {
                   pelicula={pelicula}
                   fetchData={fetchData}
                   generos={generos}
+                  setSuccessMessage={setSuccessMessage}
+                  setErrorMessage={setError}
                 />
               ))}
             </div>
           )}
         </>
       </div>
+
+      <Snackbar
+        open={!!error}
+        autoHideDuration={6000}
+        onClose={() => setError(null)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert severity="error" onClose={() => setError(null)} sx={{ width: "100%" }}>
+          {error}
+        </Alert>
+      </Snackbar>
+
+      <Snackbar
+        open={!!successMessage}
+        autoHideDuration={5000}
+        onClose={() => setSuccessMessage(null)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert severity="success" onClose={() => setSuccessMessage(null)} sx={{ width: "100%" }}>
+          {successMessage}
+        </Alert>
+      </Snackbar>
     </div>
   );
 }

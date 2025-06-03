@@ -32,9 +32,11 @@ interface MovieCardProps {
   pelicula: Pelicula;
   fetchData: () => void;
   generos: { id: number; name: string }[];
+  setSuccessMessage: (message: string) => void;
+  setErrorMessage: (message: string) => void;
 }
 
-export function MovieCard({ pelicula, fetchData, generos }: MovieCardProps) {
+export function MovieCard({ pelicula, fetchData, generos, setSuccessMessage, setErrorMessage }: MovieCardProps) {
   const [open, setOpen] = useState(false);
   const [edited, setEdited] = useState<Pelicula>(pelicula);
 
@@ -54,26 +56,26 @@ export function MovieCard({ pelicula, fetchData, generos }: MovieCardProps) {
   const handleSave = async () => {
     try {
       await axios.put("/api/movies/" + pelicula.id, edited); 
+      setSuccessMessage("Película actualizada con éxito.");
       await fetchData(); 
       setOpen(false); 
     } catch (error) {
-      console.error("Error updating movie:", error);
+      setErrorMessage("Error actualizando película:" + error);
     }
   };
   const handleDelete = async () => {
     try {
-      await axios.delete("/api/movies/" + pelicula.id, {
-        data: edited, 
-      });
+      await axios.delete("/api/movies/" + pelicula.id);
+      setSuccessMessage("Película eliminada con éxito.");
       await fetchData();
     } catch (error) {
-      console.error("Error deleting movie:", error);
+      console.error("Error borrando película:", error);
     }
   };
 
   return (
     <>
-      <Paper elevation={5} className="p-8">
+      <Paper elevation={8} className="p-8">
         <Box
           display="flex"
           justifyContent="space-between"

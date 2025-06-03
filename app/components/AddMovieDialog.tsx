@@ -24,6 +24,8 @@ interface AddMovieDialogProps {
   handleGenero: (event: SelectChangeEvent) => void;
   generos: { id: number; name: string }[];
   fetchData: () => void;
+  setSuccessMessage: (message: string) => void;
+  setErrorMessage: (message: string) => void;
 }
 
 export default function AddMovieDialog({
@@ -31,6 +33,8 @@ export default function AddMovieDialog({
   setOpen,
   generos,
   fetchData,
+  setSuccessMessage,
+  setErrorMessage,
 }: AddMovieDialogProps) {
   const [newMovie, setNewMovie] = useState({
     name: "",
@@ -41,10 +45,18 @@ export default function AddMovieDialog({
 
   const handleSubmit = async () => {
     if (newMovie.name.length < 1) {
+      setErrorMessage("Falta uno o más campos de llenar de información.");
       return;
     }
 
-    await axios.post("/api/movies", newMovie);
+    try {
+      await axios.post("/api/movies", newMovie);
+    } catch (error) {
+      setErrorMessage("Error: " + error);
+      setOpen(false);
+      return;
+    }
+    setSuccessMessage("Película agregada de forma exitosa.")
     setOpen(false);
     await fetchData();
   };

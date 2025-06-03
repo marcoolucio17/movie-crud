@@ -37,6 +37,9 @@ export default function FilterDialog({
               {name}
             </MenuItem>
           ))}
+          <MenuItem key={"all"} value={"all"}>
+            Todo
+          </MenuItem>
         </Select>
       </DialogContent>
       <DialogActions>
