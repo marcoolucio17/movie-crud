@@ -20,6 +20,8 @@ import EditIcon from "@mui/icons-material/Edit";
 import { PencilIcon } from "@heroicons/react/24/solid";
 import { TrashIcon } from "@heroicons/react/24/solid";
 import axios from "axios";
+
+// interfaz para prop pelicula
 export interface Pelicula {
   id: number;
   name: string;
@@ -28,6 +30,7 @@ export interface Pelicula {
   review: string;
 }
 
+// interfaz para prop movie card
 interface MovieCardProps {
   pelicula: Pelicula;
   fetchData: () => void;
@@ -40,7 +43,7 @@ export function MovieCard({ pelicula, fetchData, generos, setSuccessMessage, set
   const [open, setOpen] = useState(false);
   const [edited, setEdited] = useState<Pelicula>(pelicula);
 
-  // oopsie
+  // encuentra el id del género en base a su nombre
   const findIdByName = (name: string): number | undefined => {
     const genero = generos.find((g) => g.name === name);
     return genero?.id;
@@ -53,6 +56,7 @@ export function MovieCard({ pelicula, fetchData, generos, setSuccessMessage, set
 
   const handleClose = () => setOpen(false);
 
+  // maneja PUT para actualizar una peli
   const handleSave = async () => {
     try {
       await axios.put("/api/movies/" + pelicula.id, edited); 
@@ -63,6 +67,8 @@ export function MovieCard({ pelicula, fetchData, generos, setSuccessMessage, set
       setErrorMessage("Error actualizando película:" + error);
     }
   };
+
+  // maneja DELETE para eliminar una peli
   const handleDelete = async () => {
     try {
       await axios.delete("/api/movies/" + pelicula.id);

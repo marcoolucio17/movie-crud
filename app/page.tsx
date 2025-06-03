@@ -13,6 +13,7 @@ import axios from "axios";
 import { CircularProgress, Alert, Snackbar } from "@mui/material";
 import InboxIcon from "@mui/icons-material/Inbox";
 
+// Componente principal de la aplicación
 export default function Home() {
   const [openFilterDialog, setOpenFilterDialog] = useState(false);
   const [openAddMovieDialog, setOpenAddMovieDialog] = useState(false);
@@ -29,6 +30,7 @@ export default function Home() {
     setGenero(event.target.value as string);
   };
 
+  // Agrupación de métodos de fetch
   const fetchData = async () => {
     setLoading(true);
     await fetchPeliculas();
@@ -61,22 +63,26 @@ export default function Home() {
     }
   };
 
+  // Al montarse el componente, se hace el fetch inicial
   useEffect(() => {
     fetchData();
   }, []);
 
   const [search, setSearch] = useState("");
 
+  // Variable para sostener las películas bajo los filtros específicados por el usuario
   const filteredPeliculas = peliculas.filter((peli: Pelicula) => {
     const matchesSearch = peli.name
       .toLowerCase()
       .includes(search.toLowerCase());
 
+    // debido a que el objetivo peli puede tener o el ID del género o el nombre del género, hacemos esta revisión
     const peliGenreId =
       typeof peli.genre === "number" ? peli.genre : findIdByName(peli.genre);
 
     const matchesGenre = genero === "all" || String(peliGenreId) == genero;
 
+    // mostramos lo que cumpla con la búsqueda y el género especificado
     return matchesSearch && matchesGenre;
   });
 

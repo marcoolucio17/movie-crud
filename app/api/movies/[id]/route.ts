@@ -1,5 +1,11 @@
 import { supabase } from '@/lib/supabaseClient';
 
+/**
+ * Método PUT para actualizar cierta película en la base de datos
+ * @param req 
+ * @param param1 
+ * @returns JSON del resultado
+ */
 export async function PUT(req: Request, { params }: { params: { id: string } }) {
   const id = parseInt(params.id);
   const body = await req.json();
@@ -22,6 +28,11 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
   return new Response(JSON.stringify(data), { status: 200 });
 }
 
+/**
+ * Método DELETE para eliminar cierta película
+ * @param id: ID de la película a eliminar
+ * @returns JSON del resultado
+ */
 export async function DELETE(_: Request, { params }: { params: { id: string } }) {
   const id = parseInt(params.id);
 

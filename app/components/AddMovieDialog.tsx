@@ -15,6 +15,7 @@ import {
 import { Dispatch, SetStateAction, useState } from "react";
 import axios from "axios";
 
+// interfaz para las props de addmoviedialog
 interface AddMovieDialogProps {
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
@@ -28,6 +29,7 @@ interface AddMovieDialogProps {
   setErrorMessage: (message: string) => void;
 }
 
+// componente que muestra el modal para ver una película
 export default function AddMovieDialog({
   open,
   setOpen,
@@ -36,6 +38,7 @@ export default function AddMovieDialog({
   setSuccessMessage,
   setErrorMessage,
 }: AddMovieDialogProps) {
+  // guarda la información para la nueva peli
   const [newMovie, setNewMovie] = useState({
     name: "",
     rating: 0,
@@ -43,6 +46,7 @@ export default function AddMovieDialog({
     review: "",
   });
 
+  // maneja el POST a el API
   const handleSubmit = async () => {
     if (newMovie.name.length < 1) {
       setErrorMessage("Falta uno o más campos de llenar de información.");

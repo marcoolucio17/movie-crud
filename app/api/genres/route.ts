@@ -1,5 +1,9 @@
 import { supabase } from '@/lib/supabaseClient';
 
+/**
+ * Método GET para traer todos los géneros dados de alta en la base de datos
+ * @returns JSON con los géneros dados de alta
+ */
 export async function GET() {
   const { data, error } = await supabase
     .from('genre')
