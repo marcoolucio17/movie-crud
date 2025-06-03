@@ -11,6 +11,7 @@ import AddMovieDialog from "./components/AddMovieDialog";
 import { MovieCard, Pelicula } from "./components/MovieCard";
 import axios from "axios";
 import { CircularProgress, Alert, Snackbar } from "@mui/material";
+import InboxIcon from "@mui/icons-material/Inbox";
 
 export default function Home() {
   const [openFilterDialog, setOpenFilterDialog] = useState(false);
@@ -129,8 +130,13 @@ export default function Home() {
             <div className="flex justify-center items-center min-h-[200px]">
               <CircularProgress />
             </div>
+          ) : filteredPeliculas.length === 0 ? (
+            <div className="flex flex-col items-center justify-center min-h-[200px] text-gray-500">
+              <InboxIcon sx={{ fontSize: 64, marginBottom: 2 }} />
+              <p className="text-lg font-medium">No se encontraron películas</p>
+            </div>
           ) : (
-            <div id="peli-container" className="grid grid-cols-3 gap-5">
+            <div id="peli-container" className="grid grid-cols-3 gap-5 overflow-y-scroll h-160">
               {filteredPeliculas.map((pelicula, idx) => (
                 <MovieCard
                   key={idx}
@@ -152,7 +158,11 @@ export default function Home() {
         onClose={() => setError(null)}
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
-        <Alert severity="error" onClose={() => setError(null)} sx={{ width: "100%" }}>
+        <Alert
+          severity="error"
+          onClose={() => setError(null)}
+          sx={{ width: "100%" }}
+        >
           {error}
         </Alert>
       </Snackbar>
@@ -163,7 +173,11 @@ export default function Home() {
         onClose={() => setSuccessMessage(null)}
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
-        <Alert severity="success" onClose={() => setSuccessMessage(null)} sx={{ width: "100%" }}>
+        <Alert
+          severity="success"
+          onClose={() => setSuccessMessage(null)}
+          sx={{ width: "100%" }}
+        >
           {successMessage}
         </Alert>
       </Snackbar>
